@@ -55,6 +55,7 @@ console.log('Toggl YouTrack Extension Fixer loaded and monitoring for idLink ele
 const sprintCache = {}; // boardId -> Promise<{ currentSprint, sprints }>
 let lastSprintUrl = '';
 let rendering = false;
+const TOKEN_KEY = 'tyf-youtrack-token';
 
 function parseAgileUrl() {
   const m = location.pathname.match(/^\/agiles\/([\w-]+)(?:\/([\w-]+))?/);
@@ -64,7 +65,15 @@ function parseAgileUrl() {
 function loadBoard(boardId) {
   sprintCache[boardId] ??= (async () => {
     const url = `/api/agiles/${boardId}?fields=currentSprint(id),sprints(id,name,start)`;
-    const res = await fetch(url, { credentials: 'same-origin' });
+    // /api needs a bearer token (Hub auth, cookies are not accepted); ask once, keep in localStorage
+    let token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      token = prompt('Toggl YouTrack Fixer: paste a YouTrack permanent token (Profile > Account Security > New token)');
+      if (!token) throw new Error('no token');
+      localStorage.setItem(TOKEN_KEY, token.trim());
+    }
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token.trim()}` } });
+    if (res.status === 401) localStorage.removeItem(TOKEN_KEY);
     if (!res.ok) throw new Error(`YouTrack API ${res.status} for ${url}`);
     const board = await res.json();
     // ponytail: sort by start date, undated sprints last; API order isn't documented
@@ -96,24 +105,18 @@ async function renderSprintArrows() {
   const sprintId = agile.sprintId || board.currentSprint?.id;
   const idx = board.sprints.findIndex(s => s.id === sprintId);
   if (idx === -1) return;
-  const current = board.sprints[idx];
 
-  // YouTrack class names are hashed; the sprint name is the only stable anchor
-  const anchor = [...document.querySelectorAll('button')]
-    .find(b => b.textContent.trim().startsWith(current.name));
+  const anchor = document.querySelector('button.yt-agile-board__toolbar__sprint');
+  if (!anchor) return; // toolbar not rendered yet, the interval retries
   if (existing) existing.parentElement.remove();
 
   const wrap = document.createElement('span');
+  wrap.id = 'tyf-sprint-arrows';
   wrap.append(
     makeArrow('tyf-sprint-prev', '‹', agile.boardId, board.sprints[idx - 1]),
     makeArrow('tyf-sprint-next', '›', agile.boardId, board.sprints[idx + 1]),
   );
-  if (anchor) {
-    anchor.after(wrap);
-  } else {
-    wrap.style.cssText = 'position:fixed;top:8px;right:8px;z-index:9999;background:#333;color:#fff;border-radius:4px;padding:2px 4px';
-    document.body.append(wrap);
-  }
+  anchor.after(wrap);
 }
 
 // YouTrack is an SPA and re-renders the toolbar; re-render on URL change or when arrows vanish
