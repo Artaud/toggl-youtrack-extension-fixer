@@ -84,7 +84,7 @@ function loadBoard(boardId) {
 }
 
 // Ring UI's own 12px chevron, rotated to point left/right so it matches the dropdown glyph
-const CHEVRON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 12 12" style="transform:rotate(DEGdeg);vertical-align:middle"><path fill-rule="evenodd" d="M9.067 4.246a.625.625 0 0 0-.884 0L6 6.429 3.817 4.246a.625.625 0 1 0-.884.883l2.625 2.625c.244.245.64.245.884 0L9.067 5.13a.625.625 0 0 0 0-.883Z" clip-rule="evenodd"/></svg>';
+const CHEVRON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 12 12" style="transform:rotate(DEGdeg);vertical-align:middle;margin-top:-8px"><path fill-rule="evenodd" d="M9.067 4.246a.625.625 0 0 0-.884 0L6 6.429 3.817 4.246a.625.625 0 1 0-.884.883l2.625 2.625c.244.245.64.245.884 0L9.067 5.13a.625.625 0 0 0 0-.883Z" clip-rule="evenodd"/></svg>';
 
 function makeArrow(id, dir, boardId, target, anchor) {
   const btn = document.createElement('button');
@@ -95,7 +95,8 @@ function makeArrow(id, dir, boardId, target, anchor) {
   btn.title = target ? target.name : '';
   btn.disabled = !target;
   // glue onto the dropdown: no gap, shared 1px border, square inner corners
-  const base = `display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:${anchor.offsetHeight}px;vertical-align:${getComputedStyle(anchor).verticalAlign};min-width:36px;padding:0 10px;`;
+  // ponytail: line-height/min-width/svg margin-top tuned by eye in DevTools against Ring's 25px button
+  const base = `display:inline-block;box-sizing:border-box;height:${anchor.offsetHeight}px;line-height:34px;min-width:49px;padding:0;vertical-align:baseline;`;
   btn.style.cssText = base + (dir === 'prev'
     ? 'margin:0 -1px 0 0;border-top-right-radius:0;border-bottom-right-radius:0'
     : 'margin:0 0 0 -1px;border-top-left-radius:0;border-bottom-left-radius:0');
