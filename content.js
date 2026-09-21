@@ -86,6 +86,7 @@ function loadBoard(boardId) {
 function makeArrow(id, label, boardId, target) {
   const btn = document.createElement('button');
   btn.id = id;
+  btn.className = 'tyf-sprint-arrow';
   btn.textContent = label;
   btn.title = target ? target.name : '';
   btn.disabled = !target;
@@ -96,9 +97,9 @@ function makeArrow(id, label, boardId, target) {
 
 async function renderSprintArrows() {
   const agile = parseAgileUrl();
-  const existing = document.getElementById('tyf-sprint-prev');
+  const removeExisting = () => document.querySelectorAll('.tyf-sprint-arrow').forEach(el => el.remove());
   if (!agile) {
-    if (existing) existing.parentElement.remove();
+    removeExisting();
     return;
   }
   const board = await loadBoard(agile.boardId);
@@ -108,15 +109,9 @@ async function renderSprintArrows() {
 
   const anchor = document.querySelector('button.yt-agile-board__toolbar__sprint');
   if (!anchor) return; // toolbar not rendered yet, the interval retries
-  if (existing) existing.parentElement.remove();
-
-  const wrap = document.createElement('span');
-  wrap.id = 'tyf-sprint-arrows';
-  wrap.append(
-    makeArrow('tyf-sprint-prev', '‹', agile.boardId, board.sprints[idx - 1]),
-    makeArrow('tyf-sprint-next', '›', agile.boardId, board.sprints[idx + 1]),
-  );
-  anchor.after(wrap);
+  removeExisting();
+  anchor.before(makeArrow('tyf-sprint-prev', '‹', agile.boardId, board.sprints[idx - 1]));
+  anchor.after(makeArrow('tyf-sprint-next', '›', agile.boardId, board.sprints[idx + 1]));
 }
 
 // YouTrack is an SPA and re-renders the toolbar; re-render on URL change or when arrows vanish
