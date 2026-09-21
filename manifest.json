@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Toggl YouTrack Extension Fixer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fixes YouTrack elements by adding specific CSS classes for Toggl integration",
   "permissions": [
     "activeTab"
