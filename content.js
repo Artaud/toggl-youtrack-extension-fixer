@@ -96,7 +96,7 @@ function makeArrow(id, dir, boardId, target, anchor) {
   btn.disabled = !target;
   // glue onto the dropdown: no gap, shared 1px border, square inner corners
   // ponytail: line-height/min-width/svg margin-top tuned by eye in DevTools against Ring's 25px button
-  const base = `display:inline-block;box-sizing:border-box;height:${anchor.offsetHeight + 1}px;line-height:34px;min-width:49px;padding:0;vertical-align:baseline;`;
+  const base = `display:inline-block;box-sizing:border-box;height:${anchor.offsetHeight}px;line-height:34px;min-width:49px;padding:0;vertical-align:baseline;`;
   btn.style.cssText = base + (dir === 'prev'
     ? 'margin:0 -1px 0 0;border-top-right-radius:0;border-bottom-right-radius:0'
     : 'margin:0 0 0 -1px;border-top-left-radius:0;border-bottom-left-radius:0');
